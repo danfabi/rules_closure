@@ -90,13 +90,16 @@ def _closure_proto_aspect_impl(target, ctx):
     srcs = depset([js])
     deps = unfurl(ctx.rule.attr.deps, provider = "closure_js_library")
     deps += [ctx.attr._closure_library, ctx.attr._closure_protobuf_jspb]
+    descriptors = depset(
+        direct = [target.proto.direct_descriptor_set],
+        transitive = [target.proto.transitive_descriptor_sets])
 
     suppress = [
         "missingProperties",
         "unusedLocalVariables",
     ]
 
-    library = create_closure_js_library(ctx, srcs, deps, [], suppress, True)
+    library = create_closure_js_library(ctx, srcs, deps, [], suppress, True, descriptors)
     return struct(
         exports = library.exports,
         closure_js_library = library.closure_js_library,
