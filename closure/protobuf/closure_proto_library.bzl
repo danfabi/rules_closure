@@ -99,7 +99,14 @@ def _closure_proto_aspect_impl(target, ctx):
         "unusedLocalVariables",
     ]
 
-    library = create_closure_js_library(ctx, srcs, deps, [], suppress, True, descriptors)
+    library = create_closure_js_library(
+        ctx = ctx,
+        srcs = srcs,
+        deps = deps,
+        exports = [],
+        suppress = suppress,
+        lenient = True,
+        pb_descriptors = descriptors)
     return struct(
         exports = library.exports,
         closure_js_library = library.closure_js_library,
