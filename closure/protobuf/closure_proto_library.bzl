@@ -92,7 +92,8 @@ def _closure_proto_aspect_impl(target, ctx):
     deps += [ctx.attr._closure_library, ctx.attr._closure_protobuf_jspb]
     descriptors = depset(
         direct = [target.proto.direct_descriptor_set],
-        transitive = [target.proto.transitive_descriptor_sets])
+        transitive = [target.proto.transitive_descriptor_sets],
+    )
 
     suppress = [
         "missingProperties",
@@ -106,7 +107,9 @@ def _closure_proto_aspect_impl(target, ctx):
         exports = [],
         suppress = suppress,
         lenient = True,
-        pb_descriptors = descriptors)
+        pb_descriptors = descriptors,
+    )
+
     return struct(
         exports = library.exports,
         closure_js_library = library.closure_js_library,
