@@ -98,6 +98,7 @@ def _closure_proto_aspect_impl(target, ctx):
     suppress = [
         "missingProperties",
         "unusedLocalVariables",
+        "undefinedVars",
     ]
 
     library = create_closure_js_library(
