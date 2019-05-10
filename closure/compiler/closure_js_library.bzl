@@ -46,7 +46,7 @@ def create_closure_js_library(
         exports = [],
         suppress = [],
         lenient = False,
-        pb_descriptors = []),
+        pb_descriptors = [],
         convention = "CLOSURE"):
     """ Returns closure_js_library metadata with provided attributes.
 
