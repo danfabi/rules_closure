@@ -43,10 +43,10 @@ def _web_library(ctx):
     # process what came before
     deps = unfurl(ctx.attr.deps, provider = "webfiles")
     webpaths = []
-    manifests = depset(order = "postorder")
+    manifests = []
     for dep in deps:
         webpaths.append(dep.webfiles.webpaths)
-        manifests += dep.webfiles.manifests
+        manifests += [dep.webfiles.manifests]
 
     # process what comes now
     new_webpaths = []
@@ -85,11 +85,11 @@ def _web_library(ctx):
             src = manifest_srcs,
         ).to_proto(),
     )
-    manifests += [manifest]
+    manifests = depset([manifest], transitive = manifests, order = "postorder")
 
     # perform strict dependency checking
     inputs = [manifest]
-    direct_manifests = depset([manifest])
+    direct_manifests = [manifest]
     args = [
         "WebfilesValidator",
         "--dummy",
@@ -103,13 +103,13 @@ def _web_library(ctx):
     inputs.extend(ctx.files.srcs)
     for dep in deps:
         inputs.append(dep.webfiles.dummy)
-        for f in dep.files:
+        for f in dep.files.to_list():
             inputs.append(f)
         direct_manifests += [dep.webfiles.manifest]
         inputs.append(dep.webfiles.manifest)
         args.append("--direct_dep")
         args.append(dep.webfiles.manifest.path)
-    for man in difference(manifests, direct_manifests):
+    for man in difference(manifests, depset(direct_manifests)):
         inputs.append(man)
         args.append("--transitive_dep")
         args.append(man.path)
@@ -146,11 +146,11 @@ def _web_library(ctx):
         ),
     )
 
-    # export data to parent rules
-    transitive_runfiles = depset()
-    transitive_runfiles += ctx.attr._WebfilesServer.data_runfiles.files
-    for dep in deps:
-        transitive_runfiles += dep.data_runfiles.files
+    transitive_runfiles = depset(
+        transitive = [ctx.attr._WebfilesServer.data_runfiles.files] +
+                     [dep.data_runfiles.files for dep in deps],
+    )
+
     return struct(
         files = depset([ctx.outputs.executable, ctx.outputs.dummy]),
         exports = unfurl(ctx.attr.exports),

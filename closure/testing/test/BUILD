@@ -75,24 +75,40 @@ closure_js_test(
     name = "arithmetic_es6module_test",
     timeout = "short",
     srcs = ["arithmetic_es6module_test.js"],
+    entry_points = ["closure/testing/test/arithmetic_es6module_test.js"],
+    suppress = ["moduleLoad"],
     deps = [
         ":arithmetic_es6module_lib",
         "//closure/library:testing",
     ],
 )
 
-genrule(
-    name = "fontdemo",
-    srcs = [
-        "screenshot.js",
-        "fontdemo.html",
+closure_js_library(
+    name = "lenient_lib",
+    srcs = ["lenient.js"],
+    lenient = True,
+)
+
+closure_js_test(
+    name = "lenient_test",
+    srcs = ["lenient_test.js"],
+    lenient = True,
+    deps = [
+        ":lenient_lib",
+        "//closure/library:testing",
     ],
-    outs = ["fontdemo-generated.png"],
-    cmd = "$(location //third_party/phantomjs) $(SRCS) $@",
-    # TODO(user): Remove local = 1 when ariya/phantomjs#13876 is fixed.
-    local = 1,
-    tags = ["requires-network"],
-    tools = ["//third_party/phantomjs"],
+    entry_points = ['rules_closure.LenientTest'],
+)
+
+closure_js_test(
+    name = "dict_entry_point_test",
+    srcs = ["dict_entry_point_test.js"],
+    entry_points = {
+        "dict_entry_point_test.js": ["rules_closure.DictEntryPointTest"],
+    },
+    deps = [
+        "//closure/library:testing",
+    ],
 )
 
 # This test shows how to write tests to verify rendered output from phantomjs.
@@ -101,6 +117,20 @@ genrule(
 # very hight chance of being flaky.
 # https://github.com/bazelbuild/rules_closure/issues/247
 # https://github.com/bazelbuild/rules_closure/pull/186#issuecomment-279115018
+#
+# genrule(
+#     name = "fontdemo",
+#     srcs = [
+#         "screenshot.js",
+#         "fontdemo.html",
+#     ],
+#     outs = ["fontdemo-generated.png"],
+#     cmd = "$(location //third_party/phantomjs) $(SRCS) $@",
+#     # TODO(user): Remove local = 1 when ariya/phantomjs#13876 is fixed.
+#     local = 1,
+#     tags = ["requires-network"],
+#     tools = ["//third_party/phantomjs"],
+# )
 #
 # files_equal_test(
 #     name = "noto_fonts_render_as_expected",

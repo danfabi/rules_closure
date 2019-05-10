@@ -1,9 +1,25 @@
 workspace(name = "io_bazel_rules_closure")
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("//closure/private:java_import_external.bzl", "java_import_external")
 load("//closure:repositories.bzl", "closure_repositories")
 
 closure_repositories()
+
+http_archive(
+    name = "net_zlib",
+    build_file = "//:third_party/zlib.BUILD",
+    sha256 = "c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1",
+    strip_prefix = "zlib-1.2.11",
+    urls = ["https://zlib.net/zlib-1.2.11.tar.gz"],
+)
+
+http_archive(
+    name = "bazel_skylib",
+    sha256 = "bbccf674aa441c266df9894182d80de104cabd19be98be002f6d478aaa31574d",
+    strip_prefix = "bazel-skylib-2169ae1c374aab4a09aa90e65efe1a3aad4e279b",
+    urls = ["https://github.com/bazelbuild/bazel-skylib/archive/2169ae1c374aab4a09aa90e65efe1a3aad4e279b.tar.gz"],
+)
 
 java_import_external(
     name = "com_google_guava_testlib",
@@ -73,12 +89,18 @@ java_import_external(
 
 java_import_external(
     name = "com_google_truth",
-    jar_sha256 = "25ce04464511d4a7c05e1034477900a897228cba2f86110d2ed49c956d9a82af",
+    jar_sha256 = "a9e6796786c9c77a5fe19b08e72fe0a620d53166df423d8861af9ebef4dc4247",
     jar_urls = [
-        "https://mirror.bazel.build/repo1.maven.org/maven2/com/google/truth/truth/0.39/truth-0.39.jar",
-        "https://repo1.maven.org/maven2/com/google/truth/truth/0.39/truth-0.39.jar",
+        "https://mirror.bazel.build/repo1.maven.org/maven2/com/google/truth/truth/0.44/truth-0.44.jar",
+        "http://repo1.maven.org/maven2/com/google/truth/truth/0.44/truth-0.44.jar",
+        "http://maven.ibiblio.org/maven2/com/google/truth/truth/0.44/truth-0.44.jar",
     ],
     licenses = ["notice"],  # Apache 2.0
     testonly_ = 1,
     deps = ["@com_google_guava"],
+)
+
+bind(
+    name = "zlib",
+    actual = "@net_zlib//:zlib",
 )

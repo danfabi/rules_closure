@@ -39,7 +39,7 @@ def _impl(ctx):
     for flag in ctx.attr.defs:
         if not flag.startswith("--") or (" " in flag and "=" not in flag):
             fail("Please use --flag=value syntax for defs")
-    if ctx.attr.language not in JS_LANGUAGES:
+    if ctx.attr.language not in JS_LANGUAGES.to_list():
         fail("Unknown language %s try one of these: %s" % (
             ctx.attr.language,
             ", ".join(JS_LANGUAGES),
@@ -84,7 +84,6 @@ def _impl(ctx):
         "--generate_exports",
         "--process_closure_primitives",
         "--define=goog.json.USE_NATIVE_JSON",
-        "--define=goog.soy.REQUIRE_STRICT_AUTOESCAPE",
         "--hide_warnings_for=closure/goog/base.js",
     ]
 
@@ -93,7 +92,7 @@ def _impl(ctx):
 
     # These ClosureJsLibrary protocol buffers contain information about which
     # errors should be suppressed in which files.
-    for info in js.infos:
+    for info in js.infos.to_list():
         args.append("--info")
         args.append(info.path)
         inputs.append(info)
@@ -112,14 +111,17 @@ def _impl(ctx):
     # except unlike C++ there's no I/O operation penalty to using them since all
     # source paths that exist are being passed as flags.
     js_module_roots = sort_roots(
-        find_js_module_roots(
-            [ctx.outputs.bin],
-            ctx.workspace_name,
-            ctx.label,
-            getattr(ctx.attr, "includes", []),
-        ) +
-        js.js_module_roots,
+        depset(transitive = [
+            find_js_module_roots(
+                [ctx.outputs.bin],
+                ctx.workspace_name,
+                ctx.label,
+                getattr(ctx.attr, "includes", []),
+            ),
+            js.js_module_roots,
+        ]),
     )
+
     for root in js_module_roots:
         args.append("--js_module_root")
         args.append(root)
@@ -205,7 +207,7 @@ def _impl(ctx):
     all_args.add_all(args)
 
     # We shall now pass all transitive sources, including externs files.
-    for src in js.srcs:
+    for src in js.srcs.to_list():
         inputs.append(src)
         if src.path.endswith(".zip"):
             all_args.add("--jszip")
@@ -236,7 +238,7 @@ def _impl(ctx):
         mnemonic = "Closure",
         execution_requirements = {"supports-workers": "1"},
         progress_message = "Compiling %d JavaScript files to %s" % (
-            len(js.srcs),
+            len(js.srcs.to_list()),
             ctx.outputs.bin.short_path,
         ),
     )
@@ -255,9 +257,11 @@ def _impl(ctx):
         ),
         runfiles = ctx.runfiles(
             files = files + ctx.files.data,
-            transitive_files = (collect_runfiles(deps) |
-                                collect_runfiles([ctx.attr.css]) |
-                                collect_runfiles(ctx.attr.data)),
+            transitive_files = depset(transitive = [
+                collect_runfiles(deps),
+                collect_runfiles([ctx.attr.css]),
+                collect_runfiles(ctx.attr.data),
+            ]),
         ),
     )
 

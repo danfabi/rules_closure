@@ -21,6 +21,7 @@ load("//closure/private:platform_http_file.bzl", "platform_http_file")
 def closure_repositories(
         omit_aopalliance = False,
         omit_args4j = False,
+        omit_bazel_skylib = False,
         omit_clang = False,
         omit_com_google_auto_common = False,
         omit_com_google_auto_factory = False,
@@ -67,7 +68,8 @@ def closure_repositories(
         omit_org_ow2_asm_commons = False,
         omit_org_ow2_asm_tree = False,
         omit_org_ow2_asm_util = False,
-        omit_phantomjs = False):
+        omit_phantomjs = False,
+        omit_zlib = False):
     """Imports dependencies for Closure Rules."""
     if omit_com_google_protobuf_java:
         fail("omit_com_google_protobuf_java no longer supported and must be not be passed to closure_repositories()")
@@ -75,6 +77,8 @@ def closure_repositories(
         aopalliance()
     if not omit_args4j:
         args4j()
+    if not omit_bazel_skylib:
+        bazel_skylib()
     if not omit_clang:
         clang()
     if not omit_com_google_auto_common:
@@ -167,6 +171,8 @@ def closure_repositories(
         org_ow2_asm_util()
     if not omit_phantomjs:
         phantomjs()
+    if not omit_zlib:
+        zlib()
 
 # BEGIN_DECLARATIONS
 
@@ -191,6 +197,14 @@ def args4j():
             "https://repo1.maven.org/maven2/args4j/args4j/2.0.26/args4j-2.0.26.jar",
         ],
         licenses = ["notice"],  # MIT License
+    )
+
+def bazel_skylib():
+    http_archive(
+        name = "bazel_skylib",
+        sha256 = "bbccf674aa441c266df9894182d80de104cabd19be98be002f6d478aaa31574d",
+        strip_prefix = "bazel-skylib-2169ae1c374aab4a09aa90e65efe1a3aad4e279b",
+        urls = ["https://github.com/bazelbuild/bazel-skylib/archive/2169ae1c374aab4a09aa90e65efe1a3aad4e279b.tar.gz"],
     )
 
 def clang():
@@ -625,10 +639,10 @@ def com_google_javascript_closure_compiler():
         name = "com_google_javascript_closure_compiler",
         licenses = ["reciprocal"],  # MPL v1.1 (Rhino AST), Apache 2.0 (JSCompiler)
         jar_urls = [
-            "https://mirror.bazel.build/repo1.maven.org/maven2/com/google/javascript/closure-compiler-unshaded/v20180805/closure-compiler-unshaded-v20180805.jar",
-            "http://repo1.maven.org/maven2/com/google/javascript/closure-compiler-unshaded/v20180805/closure-compiler-unshaded-v20180805.jar",
+            "https://mirror.bazel.build/repo1.maven.org/maven2/com/google/javascript/closure-compiler-unshaded/v20190325/closure-compiler-unshaded-v20190325.jar",
+            "http://repo1.maven.org/maven2/com/google/javascript/closure-compiler-unshaded/v20190325/closure-compiler-unshaded-v20190325.jar",
         ],
-        jar_sha256 = "facf537aad7f643c92771f71bd8d9c9b6830ec2aa56e458d2411678d8dc32368",
+        jar_sha256 = "ae9ed32b24f59a4d412efb7196618c592cb23469d81103a4bec3c7cdd81dfe67",
         deps = [
             "@com_google_code_gson",
             "@com_google_guava",
@@ -676,23 +690,23 @@ def com_google_jsinterop_annotations():
 def com_google_protobuf():
     http_archive(
         name = "com_google_protobuf",
-        strip_prefix = "protobuf-3.6.1.3",
-        sha256 = "73fdad358857e120fd0fa19e071a96e15c0f23bb25f85d3f7009abfd4f264a2a",
+        strip_prefix = "protobuf-3.7.1",
+        sha256 = "f1748989842b46fa208b2a6e4e2785133cfcc3e4d43c17fecb023733f0f5443f",
         urls = [
-            "https://mirror.bazel.build/github.com/google/protobuf/archive/v3.6.1.3.tar.gz",
-            "https://github.com/protocolbuffers/protobuf/archive/v3.6.1.3.tar.gz",
+            "https://mirror.bazel.build/github.com/google/protobuf/archive/v3.7.1.tar.gz",
+            "https://github.com/protocolbuffers/protobuf/archive/v3.7.1.tar.gz",
         ],
     )
 
 def com_google_protobuf_js():
     http_archive(
         name = "com_google_protobuf_js",
-        strip_prefix = "protobuf-3.6.1.3/js",
+        strip_prefix = "protobuf-3.7.1/js",
         urls = [
-            "https://mirror.bazel.build/github.com/google/protobuf/archive/v3.6.1.3.tar.gz",
-            "https://github.com/protocolbuffers/protobuf/archive/v3.6.1.3.tar.gz",
+            "https://mirror.bazel.build/github.com/google/protobuf/archive/v3.7.1.tar.gz",
+            "https://github.com/protocolbuffers/protobuf/archive/v3.7.1.tar.gz",
         ],
-        sha256 = "73fdad358857e120fd0fa19e071a96e15c0f23bb25f85d3f7009abfd4f264a2a",
+        sha256 = "f1748989842b46fa208b2a6e4e2785133cfcc3e4d43c17fecb023733f0f5443f",
         build_file = str(Label("//closure/protobuf:protobuf_js.BUILD")),
     )
 
@@ -701,10 +715,10 @@ def com_google_template_soy():
         name = "com_google_template_soy",
         licenses = ["notice"],  # Apache 2.0
         jar_urls = [
-            "https://mirror.bazel.build/repo1.maven.org/maven2/com/google/template/soy/2018-03-14/soy-2018-03-14.jar",
-            "https://repo1.maven.org/maven2/com/google/template/soy/2018-03-14/soy-2018-03-14.jar",
+            "https://mirror.bazel.build/repo1.maven.org/maven2/com/google/template/soy/2019-03-11/soy-2019-03-11.jar",
+            "https://repo1.maven.org/maven2/com/google/template/soy/2019-03-11/soy-2019-03-11.jar",
         ],
-        jar_sha256 = "449664a12ae7f94d6ef72a0271edfe21fe6605fa749b152fce45eccb3e4d09b1",
+        jar_sha256 = "ceb0e78cf1cadefa17493bbd0a913314558e34dd30e4d7d92e406f69c2670725",
         deps = [
             "@args4j",
             "@com_google_code_findbugs_jsr305",
@@ -742,10 +756,10 @@ def com_google_template_soy():
 def com_google_template_soy_jssrc():
     http_archive(
         name = "com_google_template_soy_jssrc",
-        sha256 = "c76ab4cb6e46a7c76336640b3c40d6897b420209a6c0905cdcd32533dda8126a",
+        sha256 = "188a28d3935b0661631bdb518a97d03edd4a597a13a09dd3d92a138c09b59780",
         urls = [
-            "https://mirror.bazel.build/repo1.maven.org/maven2/com/google/template/soy/2018-03-14/soy-2018-03-14-jssrc_js.jar",
-            "https://repo1.maven.org/maven2/com/google/template/soy/2018-03-14/soy-2018-03-14-jssrc_js.jar",
+            "https://mirror.bazel.build/repo1.maven.org/maven2/com/google/template/soy/2019-03-11/soy-2019-03-11-jssrc_js.jar",
+            "https://repo1.maven.org/maven2/com/google/template/soy/2019-03-11/soy-2019-03-11-jssrc_js.jar",
         ],
         build_file = str(Label("//closure/templates:soy_jssrc.BUILD")),
         type = "zip",
@@ -970,4 +984,18 @@ def phantomjs():
             "https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-macosx.zip",
         ],
         macos_sha256 = "538cf488219ab27e309eafc629e2bcee9976990fe90b1ec334f541779150f8c1",
+    )
+
+def zlib():
+    http_archive(
+        name = "net_zlib",
+        build_file = "@io_bazel_rules_closure//:third_party/zlib.BUILD",
+        sha256 = "c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1",
+        strip_prefix = "zlib-1.2.11",
+        urls = ["https://zlib.net/zlib-1.2.11.tar.gz"],
+    )
+
+    native.bind(
+        name = "zlib",
+        actual = "@net_zlib//:zlib",
     )
