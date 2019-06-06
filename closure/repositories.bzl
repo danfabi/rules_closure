@@ -635,14 +635,16 @@ def com_google_java_format():
     )
 
 def com_google_javascript_closure_compiler():
+    version = "v20190528"
+    jar = "closure-compiler-unshaded-%s.jar" % version
     java_import_external(
         name = "com_google_javascript_closure_compiler",
         licenses = ["reciprocal"],  # MPL v1.1 (Rhino AST), Apache 2.0 (JSCompiler)
         jar_urls = [
-            "https://mirror.bazel.build/repo1.maven.org/maven2/com/google/javascript/closure-compiler-unshaded/v20190325/closure-compiler-unshaded-v20190325.jar",
-            "http://repo1.maven.org/maven2/com/google/javascript/closure-compiler-unshaded/v20190325/closure-compiler-unshaded-v20190325.jar",
+            "https://mirror.bazel.build/repo1.maven.org/maven2/com/google/javascript/closure-compiler-unshaded/%s/%s" % (version, jar),
+            "http://repo1.maven.org/maven2/com/google/javascript/closure-compiler-unshaded/%s/%s" % (version, jar),
         ],
-        jar_sha256 = "ae9ed32b24f59a4d412efb7196618c592cb23469d81103a4bec3c7cdd81dfe67",
+        jar_sha256 = "5e8262a9208e3acf22cf1109928355e6d6c0b4bfe44fbf42e3ef537084353fe5",
         deps = [
             "@com_google_code_gson",
             "@com_google_guava",
@@ -659,6 +661,15 @@ def com_google_javascript_closure_compiler():
             "        \"@args4j\",",
             "    ],",
             ")",
+            "",
+            "genrule(",
+            "    name = \"externs\",",
+            "    srcs = [\"%s\"]," % jar,
+            "    outs = [\"externs.zip\"],",
+            "    tools = [\"@bazel_tools//tools/jdk:jar\"],",
+            "    cmd = \"$(location @bazel_tools//tools/jdk:jar) -xf $(location :%s) externs.zip; mv externs.zip $@\"," % jar,
+            ")",
+            "",
         ]),
     )
 
@@ -667,11 +678,11 @@ def com_google_javascript_closure_library():
     http_archive(
         name = "com_google_javascript_closure_library",
         urls = [
-            "https://mirror.bazel.build/github.com/google/closure-library/archive/v20180805.tar.gz",
-            "https://github.com/google/closure-library/archive/v20180805.tar.gz",
+            "https://mirror.bazel.build/github.com/google/closure-library/archive/v20190415.tar.gz",
+            "https://github.com/google/closure-library/archive/v20190415.tar.gz",
         ],
-        sha256 = "714441188f9c50ee17b7937216627e3b7ea8c4acb3d06f901b21c53f26495b21",
-        strip_prefix = "closure-library-20180805",
+        sha256 = "b92f9c2b81adeb06b16e0a5d748baf115eeb58884fe864bec3fe8e23a7cf7d14",
+        strip_prefix = "closure-library-20190415",
         build_file = str(Label("//closure/library:closure_library.BUILD")),
     )
 
