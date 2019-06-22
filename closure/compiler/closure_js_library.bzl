@@ -435,6 +435,7 @@ def _closure_js_library(ctx):
                 transitive = [
                     collect_runfiles(unfurl(ctx.attr.deps, provider = "closure_js_library")),
                     collect_runfiles(ctx.attr.data),
+                    collect_runfiles(library.exports),
                 ],
             ),
         ),
